@@ -1,36 +1,112 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-## Getting Started
+### Estrutura de Dados
+#### Tabelas: -> FEITO
 
-First, run the development server:
+1. **Usuários**
+   - ID (Primary Key)
+   - Nome
+   - Email
+   - Senha (hash)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+2. **Caixa**
+   - ID (Primary Key)
+   - Usuário_ID (Foreign Key)
+   - Descrição
+   - Valor
+   - Tipo (Entrada/Saída)
+   - Data
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. **Meses**
+   - ID (Primary Key)
+   - Usuário_ID (Foreign Key)
+   - Mês
+   - Ano
+   - Entrada_Total
+   - Saída_Total
+   - Restante
+   - Percentual_Gasto (default 90%)
+   - Percentual_Economia (default 10%)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+4. **Transações**
+   - ID (Primary Key)
+   - Mês_ID (Foreign Key)
+   - Descrição
+   - Valor
+   - Tipo (Entrada/Saída)
+   - Data
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+### Telas do Web App
 
-## Learn More
+#### 1. Tela de Login e Registro -> FEITO
+   - **Login**: Formulário de login (Email e Senha)
+   - **Registro**: Formulário de registro (Nome, Email e Senha)
 
-To learn more about Next.js, take a look at the following resources:
+#### 2. Dashboard
+   - **Visão Geral do Caixa**
+     - campo com informações sobre o caixa atual, rentabilidade 
+     - Formulário para adicionar nova transação (Descrição, Valor, Tipo, Data)
+   - **Visão Geral Mensal**
+     - Dropdown para selecionar o mês e ano
+     - Exibição das somas de entradas, saídas e total restante
+     - Opções para ajustar percentuais de gastos e economia
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+#### 3. Detalhes Mensais
+   - **Entradas e Saídas do Mês**
+     - Tabelas separadas para entradas e saídas
+     - Formulários para adicionar novas entradas e saídas (Descrição, Valor, Data)
+     - Somatórios no final de cada tabela
+   - **Resumo Mensal**
+     - Exibição do total de rendimentos, total de despesas, total restante, percentual de gastos e percentual de economia
+     - Formulário para ajustar percentuais de gastos e economia
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+### Componentes do Frontend
 
-## Deploy on Vercel
+#### 1. Componente de Transação
+   - Campos: Descrição, Valor, Tipo, Data
+   - Botão para adicionar transação
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+#### 2. Componente de Resumo
+   - Exibição de somatórios (rendimentos totais, despesas totais, total restante)
+   - Exibição de percentuais ajustáveis (gasto e economia)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+#### 3. Componente de Tabela
+   - Tabela para listar transações com colunas (Descrição, Valor, Data)
+   - Somatório no final da tabela
+
+#### 4. Formulário de Ajuste de Percentuais
+   - Campos para ajuste dos percentuais de gastos e economia
+
+### Fluxo de Navegação
+
+1. **Login/Registro**
+   - Usuário se registra ou faz login.
+   - Após o login, redireciona para o Dashboard.
+
+2. **Dashboard**
+   - Exibe a visão geral do caixa e o resumo do mês atual.
+   - Links para detalhes mensais e adicionar transações no caixa.
+
+3. **Detalhes Mensais**
+   - Exibe as tabelas de entradas e saídas para o mês selecionado.
+   - Exibe o resumo mensal com a opção de ajustar percentuais.
+
+### Próximos Passos
+
+1. **Configuração do Projeto**
+   - Configure o projeto Next.js com TypeScript.
+   - Configure Tailwind CSS.
+   - Configure Supabase.
+
+2. **Implementação das Telas**
+   - Comece pelas telas de login e registro.
+   - Implemente o dashboard com a visão geral do caixa e do mês.
+   - Crie as telas de detalhes mensais.
+
+3. **Conexão com Supabase**
+   - Configure a autenticação de usuários.
+   - Implemente a lógica para adicionar e listar transações do caixa e mensalmente.
+
+4. **Teste e Ajustes**
+   - Teste todas as funcionalidades.
+   - Faça ajustes conforme necessário.
+
