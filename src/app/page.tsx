@@ -1,9 +1,11 @@
-import { Dashboard } from "./dashboard/page";
+import LoginScreen from "@/app/auth/signin/login";
 
 export default function Home() {
+ 
   return (
-    <>
-      <Dashboard />
-    </>
+    <div>
+     <LoginScreen />
+    </div>
+
   );
 }
