@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
@@ -17,7 +16,6 @@ export default function SignUpForm() {
   const [isLoading, setIsLoading] = useState(false)
 
 
-  // http://localhost:8080/signup
 
   const handleSignUp = async () => {
     try {

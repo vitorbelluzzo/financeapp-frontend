@@ -35,8 +35,6 @@ export default function LoginScreen() {
         }),
       });
 
-      console.log("Resposta recebida:", response);
-
       if (!response.ok) {
         console.error("Erro na requisição:", response.status, response.statusText);
         throw new Error("Falha no login, por favor verifique suas informações");
@@ -46,6 +44,8 @@ export default function LoginScreen() {
       console.log("Dados recebidos:", data);
 
       localStorage.setItem("authToken", data.accessToken);
+
+      
 
       console.log("Login bem-sucedido. Redirecionando para o dashboard...");
       window.location.href = "/overview";
