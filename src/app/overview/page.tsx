@@ -8,10 +8,14 @@ import { FinancialWidget } from "@/components/FinancialWidget";
 interface FinancialOverview {
   currentMonth: string;
   totalBalance: number;
-  availableToSpend: number;
+  percentageToSpend: number;
+  percentageToKeep: number;
   shouldSave: number;
   monthlyIncome: number;
+  monthlyExpenses: number;
   savingsPercentage: number;
+  expensesPercentage: number;
+  availableToSpend: number;
 }
 
 
@@ -63,10 +67,13 @@ export default function Overview() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <FinancialWidget title="Mês Atual" value={data.currentMonth.toLowerCase()} />
             <FinancialWidget title="Saldo Total" value={`R$ ${data.totalBalance.toFixed(2)}`} />
-            <FinancialWidget title="Disponível para Gastar" value={`R$ ${data.availableToSpend.toFixed(2)}`} />
-            <FinancialWidget title="" value={`R$ ${data.shouldSave.toFixed(2)}`} />
-            <FinancialWidget title="Renda Mensal" value={`R$ ${data.monthlyIncome.toFixed(2)}`} />
-            <FinancialWidget title="Percentual de Poupança" value={`R$ ${data.savingsPercentage.toFixed(2)}`} />
+            <FinancialWidget title="Disponível para Gastar" value={`R$ ${data.percentageToSpend.toFixed(2)}`} />
+            <FinancialWidget title="Deve guardar " value={`R$ ${data.percentageToKeep.toFixed(2)}`} />
+            <FinancialWidget title="Entrada do mês" value={`R$ ${data.monthlyIncome.toFixed(2)}`} />
+            <FinancialWidget title="Saida do mês" value={`R$ ${data.monthlyExpenses.toFixed(2)}`} />
+            
+            <FinancialWidget title="Percentual de Poupança" value={`${data.savingsPercentage.toFixed(2)}`} />
+            <FinancialWidget title="Percentual de Gasto" value={`${data.expensesPercentage.toFixed(2)}`} />
           </div>
         )
       )}
