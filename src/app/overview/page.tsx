@@ -6,6 +6,9 @@ import { FinancialWidget } from "@/components/FinancialWidget";
 import { FinancialOverview } from "@/types";
 import { Loader } from "@/components/Loader";
 import { useFinancialData } from "@/hooks/useFinancialData";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export default function Overview() {
   const { data, error, loading } = useFinancialData();
@@ -17,35 +20,69 @@ export default function Overview() {
         <Loader />
       ) : (
         data && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="space-y-4 p-4 md:space-y-6 md:p-6">
+            <Card className="overflow-hidden">
+              <CardHeader className="p-4 md:p-6">
+                <div className="flex flex-col gap-4 lg:flex-row md:items-center md:justify-between">
+                  <CardTitle className=" text-2xl capitalize flex justify-between gap-5 ">
+                    <div>
+                    {data.currentMonth}
+                    </div>
+                    <Input
+                      type="month"
+                      // value={filterDate}
+                      //TODO criar o setfilterDate
+                       //onChange={(e) => setFilterDate(e.target.value)}
+                      className="w-fit  justify-center "
+                    />
+                     </CardTitle>
+                  <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
+                    <Button
+                      variant={"default"}
+                      /* onClick={() => setIsTransactionModalOpen(true)}*/
+                      className="w-full md:w-auto dark:text-white "
+                    >
+                      <p className="">Nova transação</p>
+                    </Button>
+                    <Button
+                      /* onClick={() => setIsPercentageModalOpen(true)}*/
+                      variant={"secondary"}
+                      className="w-full md:w-auto" >
+                      <p>Atualizar Porcentagens</p>
+                    </Button>
+
+                   
+                  </div>
+                </div>
+              </CardHeader>
+            <CardContent className="grid gap-4 p-4 md:grid-cols-2 lg:grid-cols-4 md:p-6">
             <FinancialWidget
-              title="Mês Atual"
-              value={data.currentMonth.toLowerCase()}
-            />
-            <FinancialWidget
-              title="Entrada do mês"
-              value={`R$ ${data.monthlyIncome.toFixed(2)}`}
-            />
-            <FinancialWidget
-              title="Saida do mês"
-              value={`R$ ${data.monthlyExpenses.toFixed(2)}`}
-            />
-            <FinancialWidget
-              title="Saldo Total"
-              value={`R$ ${data.totalBalance.toFixed(2)}`}
-            />
-            <FinancialWidget
-              title={`${data.percentageToSpend}% da Entrada do mês`}
-              value={`R$ ${data.valueToSpend.toFixed(2)}`}
-            />
-            <FinancialWidget
-              title={`${data.percentageToKeep}% da Entrada do mês`}
-              value={`R$ ${data.valueToKeep.toFixed(2)}`}
-            />
-            <FinancialWidget
-              title="Posso gastar ainda"
-              value={`R$ ${data.availableToSpend.toFixed(2)}`}
-            />
+                title="Entrada do mês"
+                value={`R$ ${data.monthlyIncome.toFixed(2)}`}
+              />
+              <FinancialWidget
+                title="Saida do mês"
+                value={`R$ ${data.monthlyExpenses.toFixed(2)}`}
+              />
+              <FinancialWidget
+                title="Saldo Total"
+                value={`R$ ${data.totalBalance.toFixed(2)}`}
+              />
+              <FinancialWidget
+                title={`${data.percentageToSpend}% da Entrada do mês`}
+                value={`R$ ${data.valueToSpend.toFixed(2)}`}
+              />
+              <FinancialWidget
+                title={`${data.percentageToKeep}% da Entrada do mês`}
+                value={`R$ ${data.valueToKeep.toFixed(2)}`}
+              />
+              <FinancialWidget
+                title="Posso gastar ainda"
+                value={`R$ ${data.availableToSpend.toFixed(2)}`}
+              />
+            </CardContent>
+             
+            </Card>
           </div>
         )
       )}
