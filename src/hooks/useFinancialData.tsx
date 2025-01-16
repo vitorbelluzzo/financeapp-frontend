@@ -7,13 +7,18 @@ export const useFinancialData = () => {
   const [data, setData] = useState<FinancialOverview | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [filterDate, setFilterDate] = useState<string>('');
 
-
-  const getFinancialData = async () => {
+  const getFinancialData = async (month?: string, year?: string) => {
     const token = localStorage.getItem('authToken');
     setLoading(true);
+
     try {
-      const response = await fetch('http://localhost:8080/transactions/overview', {
+      var url = `http://localhost:8080/transactions/overview`;
+      if (month && year) {
+        url += `?month=${month}&year=${year}`
+      }
+      const response = await fetch(url, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -27,9 +32,7 @@ export const useFinancialData = () => {
 
       const result = await response.json();
       setData(result);
-    }
-
-    catch (err) {
+    } catch (err) {
       setError((err as Error).message);
     }
     finally {
@@ -38,8 +41,16 @@ export const useFinancialData = () => {
   };
 
   useEffect(() => {
+    if(filterDate) {
+      const [year, month]= filterDate.split('-');
+      getFinancialData(month,year);
+    }
     getFinancialData();
-  }, []);
+  }, [filterDate]);
 
-  return { data, error, loading }
+  const refreshData = async () => {
+    await getFinancialData();
+  }
+
+  return { data, error, loading,  setFilterDate, refreshData };
 }

@@ -1,17 +1,34 @@
 "use client";
 
 import * as React from "react";
-import { useState, useEffect } from "react";
 import { FinancialWidget } from "@/components/FinancialWidget";
-import { FinancialOverview } from "@/types";
 import { Loader } from "@/components/Loader";
 import { useFinancialData } from "@/hooks/useFinancialData";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useState } from "react";
+import NewTransactionModal from "@/components/NewTransactionModal";
+import { useCreateTransaction } from "@/hooks/useCreateTransaction";
 
 export default function Overview() {
-  const { data, error, loading } = useFinancialData();
+  const { data, error, loading, setFilterDate } = useFinancialData();
+  const { createTransaction, loading: creatingTransaction, error: createError } = useCreateTransaction();
+  const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
+
+  const handleCreateTransaction = async (transaction: {
+    amount: number,
+    type: 'INCOME' | 'EXPENSE';
+    description: string;
+    date: string;
+  }) => {
+    try {
+      await createTransaction(transaction);
+      setIsTransactionModalOpen(false);
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   return (
     <div className="container mx-auto p-4">
@@ -26,20 +43,18 @@ export default function Overview() {
                 <div className="flex flex-col gap-4 lg:flex-row md:items-center md:justify-between">
                   <CardTitle className=" text-2xl capitalize flex justify-between gap-5 ">
                     <div>
-                    {data.currentMonth}
+                      {data.currentMonth}
                     </div>
                     <Input
                       type="month"
-                      // value={filterDate}
-                      //TODO criar o setfilterDate
-                       //onChange={(e) => setFilterDate(e.target.value)}
+                      onChange={(e) => setFilterDate(e.target.value)}
                       className="w-fit  justify-center "
                     />
-                     </CardTitle>
+                  </CardTitle>
                   <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
                     <Button
                       variant={"default"}
-                      /* onClick={() => setIsTransactionModalOpen(true)}*/
+                      onClick={() => setIsTransactionModalOpen(true)}
                       className="w-full md:w-auto dark:text-white "
                     >
                       <p className="">Nova transação</p>
@@ -51,38 +66,43 @@ export default function Overview() {
                       <p>Atualizar Porcentagens</p>
                     </Button>
 
-                   
+
                   </div>
                 </div>
               </CardHeader>
-            <CardContent className="grid gap-4 p-4 md:grid-cols-2 lg:grid-cols-4 md:p-6">
-            <FinancialWidget
-                title="Entrada do mês"
-                value={`R$ ${data.monthlyIncome.toFixed(2)}`}
-              />
-              <FinancialWidget
-                title="Saida do mês"
-                value={`R$ ${data.monthlyExpenses.toFixed(2)}`}
-              />
-              <FinancialWidget
-                title="Saldo Total"
-                value={`R$ ${data.totalBalance.toFixed(2)}`}
-              />
-              <FinancialWidget
-                title={`${data.percentageToSpend}% da Entrada do mês`}
-                value={`R$ ${data.valueToSpend.toFixed(2)}`}
-              />
-              <FinancialWidget
-                title={`${data.percentageToKeep}% da Entrada do mês`}
-                value={`R$ ${data.valueToKeep.toFixed(2)}`}
-              />
-              <FinancialWidget
-                title="Posso gastar ainda"
-                value={`R$ ${data.availableToSpend.toFixed(2)}`}
-              />
-            </CardContent>
-             
+              <CardContent className="grid gap-4 p-4 md:grid-cols-2 lg:grid-cols-4 md:p-6">
+                <FinancialWidget
+                  title="Entrada do mês"
+                  value={`R$ ${data.monthlyIncome.toFixed(2)}`}
+                />
+                <FinancialWidget
+                  title="Saida do mês"
+                  value={`R$ ${data.monthlyExpenses.toFixed(2)}`}
+                />
+                <FinancialWidget
+                  title="Saldo Total"
+                  value={`R$ ${data.totalBalance.toFixed(2)}`}
+                />
+                <FinancialWidget
+                  title={`${data.percentageToSpend}% da Entrada do mês`}
+                  value={`R$ ${data.valueToSpend.toFixed(2)}`}
+                />
+                <FinancialWidget
+                  title={`${data.percentageToKeep}% da Entrada do mês`}
+                  value={`R$ ${data.valueToKeep.toFixed(2)}`}
+                />
+                <FinancialWidget
+                  title="Posso gastar ainda"
+                  value={`R$ ${data.availableToSpend.toFixed(2)}`}
+                />
+              </CardContent>
             </Card>
+
+            <NewTransactionModal
+              isOpen={isTransactionModalOpen}
+              onClose={() => setIsTransactionModalOpen(false)}
+              onCreateTransaction={handleCreateTransaction}>
+            </NewTransactionModal>
           </div>
         )
       )}
