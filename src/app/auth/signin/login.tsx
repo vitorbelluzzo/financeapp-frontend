@@ -96,7 +96,7 @@ export default function LoginScreen() {
 
             <CardFooter className="  ">
               <div className=" w-full gap-3 flex flex-col  ">
-                <Button variant="default" className="w-full text-white" onClick={handleLogin}>
+                <Button variant="default" className="w-full " onClick={handleLogin}>
                   Entrar
                 </Button>
                 <Link href="/auth/signup">
@@ -107,7 +107,7 @@ export default function LoginScreen() {
             </CardFooter>
           </Card>
 
-          <p className="mt-10 text-center text-xs text-gray-900"></p>
+          <p className="mt-10 text-center text-xs "></p>
         </div>
       </div>
     </>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "../app/style/globals.css";
 import { ThemeProvider } from "@/app/style/theme-provider";
+import { Toaster } from "@/components/ui/toaster";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -16,14 +17,10 @@ export default function RootLayout({
 }>) {
   return (
     <html className="dark" suppressHydrationWarning>
-      <head />
+     <head />
       <body>
-
-        <ThemeProvider
-
-        >
-          <div className="flex justify-end mx-3 mt-3 ">
-          </div>
+        <ThemeProvider>
+        <Toaster />
           {children}
         </ThemeProvider>
       </body>

@@ -5,7 +5,7 @@ export const Loader = () => {
 
   return (
 
-    <div className="w-10 h-10 border-4 border-blue-500 rounded-full animate-spin border-t-transparent"></div>
+    <div className="w-10 h-10 border-4 border-green-400 rounded-full animate-spin border-t-transparent"></div>
 
   );
 

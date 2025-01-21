@@ -1,5 +1,6 @@
 export interface FinancialOverview {
-  currentMonth: string;
+  "name": string,
+  "selectedDate": string;
   "totalBalance": number,
   "monthlyIncome": number,
   "monthlyExpenses": number,
