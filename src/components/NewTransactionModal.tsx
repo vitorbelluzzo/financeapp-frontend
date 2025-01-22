@@ -86,7 +86,7 @@ export default function NewTransactionModal({
       <DialogContent aria-describedby="dialog-description">
         <DialogHeader>
           <DialogTitle>Nova transação</DialogTitle>
-          <p id="dialog-description" className="text-sm text-gray-500">
+          <p id="dialog-description" className="text-sm ">
             Preencha os campos abaixo para criar uma nova transação.
           </p>
         </DialogHeader>

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import NewTransactionModal from "@/components/NewTransactionModal";
+import UpdatePercentageModal from "@/components/UpdatePercentageModal";
 
 export default function Overview() {
   const {  data, error: dataError, loading, setFilterDate,
@@ -16,6 +17,7 @@ export default function Overview() {
     refetch,
   } = useFinancialData();
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
+  const [isPercentageModalOpen, setIsPercentageModalOpen ] = useState(false);
 
   if (dataError) {
     return (
@@ -64,7 +66,7 @@ export default function Overview() {
                   <p className="">Nova transação</p>
                 </Button>
                 <Button
-                  /* onClick={() => setIsPercentageModalOpen(true)}*/
+                   onClick={() => setIsPercentageModalOpen(true)}
                   variant={"secondary"}
                   className="w-full md:w-auto"
                 >
@@ -84,7 +86,7 @@ export default function Overview() {
           </CardHeader>
 
           
-          <CardContent className="grid gap-4 p-4 md:grid-cols-2 lg:grid-cols-4 md:p-6 border ">
+          <CardContent className="grid gap-4 p-4 md:grid-cols-2 lg:grid-cols-4 md:p-6 border-t border-border ">
             <FinancialWidget
               title="Mês selecionado"
               value={data.selectedDate}
@@ -114,16 +116,16 @@ export default function Overview() {
         </Card>
 
         <Card>
-        <CardContent className="grid gap-4 p-4 md:grid-cols-2 lg:grid-cols-4 md:p-6 border ">
+        <CardContent className="grid gap-4 p-4 md:grid-cols-2 lg:grid-cols-4 md:p-6  ">
           
             <FinancialWidget
               title="Caixa total"
               value={`R$ ${data.totalBalance.toFixed(2)}`}
             />
               <Button
-                  variant={"outline"}
+                  variant={"default"}
                   onClick={() => setIsTransactionModalOpen(true)}
-                  className="w-full md:w-auto dark:text-white "
+                  className="w-full md:w-auto  "
                 >
                   <p className="">Adicionar valor ao caixa</p>
                 </Button>
@@ -139,6 +141,14 @@ export default function Overview() {
             refetch();
           }}
         ></NewTransactionModal>
+
+        <UpdatePercentageModal 
+        isOpen={isPercentageModalOpen}
+        onClose={()=> {
+          setIsPercentageModalOpen(false);
+          refetch();
+        }}></UpdatePercentageModal>
+
       </div>
     </div>
   );
