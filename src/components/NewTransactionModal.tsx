@@ -14,30 +14,29 @@ import { useCreateTransaction } from "@/hooks/useCreateTransaction";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { useState } from "react";
 
-interface Transaction {
-  amount: number;
-  type: "INCOME" | "EXPENSE";
-  description: string;
-  date: string;
-}
-
 interface NewTransactionModalProps {
   isOpen: boolean;
   onClose: () => void;
+}
+
+interface Transaction {
+  amount: string;
+  type: "INCOME" | "EXPENSE";
+  description: string;
+  date: string;
 }
 
 export default function NewTransactionModal({
   isOpen,
   onClose,
 }: NewTransactionModalProps) {
-  const [newTransaction, setNewTransaction] = useState({
-    amount: 0,
+  const [newTransaction, setNewTransaction] = useState<Transaction>({
+    amount: "",
     type: "INCOME" as "INCOME" | "EXPENSE",
     description: "",
     date: new Date().toISOString().split("T")[0],
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const { createTransaction } = useCreateTransaction();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -49,7 +48,7 @@ export default function NewTransactionModal({
 
     try {
       await createTransaction({
-        amount: newTransaction.amount,
+        amount: Number(newTransaction.amount),
         type: newTransaction.type,
         description: newTransaction.description,
         date: newTransaction.date,
@@ -63,12 +62,11 @@ export default function NewTransactionModal({
       onClose();
 
       setNewTransaction({
-        amount: 0,
+        amount: "",
         type: "INCOME",
         description: "",
         date: new Date().toISOString().split("T")[0],
       });
-
     } catch (error) {
       toast({
         variant: "destructive",
@@ -91,26 +89,35 @@ export default function NewTransactionModal({
           </p>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4  ">
-          <div className="gap-2 flex flex-col">
+          <div className="gap-2 flex flex-col ">
             <Label htmlFor="amount">Valor</Label>
-            <Input
-              id="amount"
-              type="number"
-              step="0.01"
-              value={newTransaction.amount}
-              onChange={(e) =>
-                setNewTransaction({
-                  ...newTransaction,
-                  amount: Number(e.target.value),
-                })
-              }
-              required
-            />
+
+            <div className="relative">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                R$
+              </span>
+              <Input
+                min={0.01}
+                id="amount"
+                type="number"
+                value={newTransaction.amount}
+                onChange={(e) =>
+                  setNewTransaction({
+                    ...newTransaction,
+                    amount: e.target.value,
+                  })
+                }
+                onFocus={(e) => e.target.select()}
+                step={0.01}
+                required
+                className="pl-10" 
+              />
+            </div>
           </div>
           <div className="gap-2 flex flex-col">
             <Label htmlFor="type">Tipo</Label>
             <Select
-              value={newTransaction.type}
+              required
               onValueChange={(value: "INCOME" | "EXPENSE") =>
                 setNewTransaction({ ...newTransaction, type: value })
               }
@@ -144,7 +151,6 @@ export default function NewTransactionModal({
             <Input
               id="date"
               type="date"
-              value={newTransaction.date}
               onChange={(e) =>
                 setNewTransaction({ ...newTransaction, date: e.target.value })
               }
