@@ -61,12 +61,7 @@ export default function NewTransactionModal({
 
       onClose();
 
-      setNewTransaction({
-        amount: "",
-        type: "INCOME",
-        description: "",
-        date: new Date().toISOString().split("T")[0],
-      });
+      
     } catch (error) {
       toast({
         variant: "destructive",
@@ -151,6 +146,7 @@ export default function NewTransactionModal({
             <Input
               id="date"
               type="date"
+              
               onChange={(e) =>
                 setNewTransaction({ ...newTransaction, date: e.target.value })
               }

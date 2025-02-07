@@ -10,19 +10,21 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import NewTransactionModal from "@/components/NewTransactionModal";
 import UpdatePercentageModal from "@/components/UpdatePercentageModal";
+import AlterTotalBalanceModal from "@/components/UpdateOrAddTotalBalanceModal"
 
 export default function Overview() {
-  const {  data, error: dataError, loading, setFilterDate,
+  const { data, error: dataError, loading, setFilterDate,
     filterDate,
     refetch,
   } = useFinancialData();
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
-  const [isPercentageModalOpen, setIsPercentageModalOpen ] = useState(false);
+  const [isPercentageModalOpen, setIsPercentageModalOpen] = useState(false);
+  const [isTotalBalanceModalOpen, setIsTotalBalanceModalOpen] = useState(false);
 
   if (dataError) {
     return (
       <div className="container mx-auto p-4">
-        <div className="rounded-lg bg-red-50 p-4 text-red-500 dark:bg-red-900/50">
+        <div className="rounded-lg bg-red-50 p-4 ">
           Erro ao carregar dados: {dataError}
         </div>
       </div>
@@ -47,16 +49,16 @@ export default function Overview() {
 
   return (
     <div className="container mx-auto p-4 ">
-      <div className="space-y-4 p-4 md:space-y-6 md:p-6 ">
-        <Card className="overflow-hidden">  
-          <CardHeader className="p-4 md:p-6  ">
+      <div className="space-y-4 p-4 md:space-y-6 md:p-6 rounded-lg   ">
+        <Card className="">
+          <CardHeader className="p-4 md:p-6">
             <div className="flex flex-col gap-4 lg:flex-row md:items-center md:justify-between ">
-              
+
               <CardTitle className=" text-2xl capitalize flex justify-between gap-5 ">
                 <div>Olá, {data.name}</div>
-                
+
               </CardTitle>
-              
+
               <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-4 ">
                 <Button
                   variant={"default"}
@@ -66,7 +68,7 @@ export default function Overview() {
                   <p className="">Nova transação</p>
                 </Button>
                 <Button
-                   onClick={() => setIsPercentageModalOpen(true)}
+                  onClick={() => setIsPercentageModalOpen(true)}
                   variant={"secondary"}
                   className="w-full md:w-auto"
                 >
@@ -80,13 +82,13 @@ export default function Overview() {
                   onChange={(e) => setFilterDate(e.target.value)}
                   className="w-fit  justify-center "
                 />
-              
+
               </div>
             </div>
           </CardHeader>
 
-          
-          <CardContent className="grid gap-4 p-4 md:grid-cols-2 lg:grid-cols-4 md:p-6 border-t border-border ">
+
+          <CardContent className="grid gap-4 p-4 md:grid-cols-2 lg:grid-cols-4 md:p-6  ">
             <FinancialWidget
               title="Mês selecionado"
               value={data.selectedDate}
@@ -99,7 +101,7 @@ export default function Overview() {
               title="Saida do mês"
               value={`R$ ${data.monthlyExpenses.toFixed(2)}`}
             />
-            
+
             <FinancialWidget
               title={`${data.percentageToSpend}% da Entrada do mês`}
               value={`R$ ${data.valueToSpend.toFixed(2)}`}
@@ -116,23 +118,23 @@ export default function Overview() {
         </Card>
 
         <Card>
-        <CardContent className="grid gap-4 p-4 md:grid-cols-2 lg:grid-cols-4 md:p-6  ">
-          
+          <CardContent className="grid gap-4 p-4 md:grid-cols-2 lg:grid-cols-4 md:p-6  ">
+
             <FinancialWidget
               title="Caixa total"
               value={`R$ ${data.totalBalance.toFixed(2)}`}
             />
-              <Button
-                  variant={"default"}
-                  onClick={() => setIsTransactionModalOpen(true)}
-                  className="w-full md:w-auto  "
-                >
-                  <p className="">Adicionar valor ao caixa</p>
-                </Button>
+            <Button
+              variant={"default"}
+              onClick={() => setIsTotalBalanceModalOpen(true)}
+              className="w-full md:w-auto  "
+            >
+              <p className="">Adicionar valor ao caixa</p>
+            </Button>
           </CardContent>
         </Card>
 
-       
+
 
         <NewTransactionModal
           isOpen={isTransactionModalOpen}
@@ -142,12 +144,19 @@ export default function Overview() {
           }}
         ></NewTransactionModal>
 
-        <UpdatePercentageModal 
-        isOpen={isPercentageModalOpen}
-        onClose={()=> {
-          setIsPercentageModalOpen(false);
-          refetch();
-        }}></UpdatePercentageModal>
+        <UpdatePercentageModal
+          isOpen={isPercentageModalOpen}
+          onClose={() => {
+            setIsPercentageModalOpen(false);
+            refetch();
+          }}></UpdatePercentageModal>
+
+        <AlterTotalBalanceModal
+          isOpen={isTotalBalanceModalOpen}
+          onClose={() => {
+            setIsTotalBalanceModalOpen(false);
+          }}
+        ></AlterTotalBalanceModal>
 
       </div>
     </div>
