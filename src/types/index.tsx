@@ -10,3 +10,4 @@ export interface FinancialOverview {
   "percentageToKeep": number,
   "availableToSpend": number
 }
+

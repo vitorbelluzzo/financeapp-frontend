@@ -61,7 +61,7 @@ export default function NewTransactionModal({
 
       onClose();
 
-      
+
     } catch (error) {
       toast({
         variant: "destructive",
@@ -105,7 +105,7 @@ export default function NewTransactionModal({
                 onFocus={(e) => e.target.select()}
                 step={0.01}
                 required
-                className="pl-10" 
+                className="pl-10"
               />
             </div>
           </div>
@@ -146,7 +146,7 @@ export default function NewTransactionModal({
             <Input
               id="date"
               type="date"
-              
+
               onChange={(e) =>
                 setNewTransaction({ ...newTransaction, date: e.target.value })
               }

@@ -7,9 +7,11 @@ export const useFinancialData = () => {
   const [loading, setLoading] = useState(false);
   const [filterDate, setFilterDate] = useState<string>(Date.now().toString());
 
-  const getFinancialData = useCallback(
-    async (month?: string, year?: string) => {
+  const getFinancialData = useCallback( async (month?: string, year?: string) => {
       const token = localStorage.getItem("authToken");
+      if (!token) {
+        throw new Error("Usuário não autenticado");
+      }
       setLoading(true);
       setError(null);
 
@@ -50,11 +52,11 @@ export const useFinancialData = () => {
     }
   }, [filterDate, getFinancialData]);
 
-  return { 
-    data, 
-    error, 
-    loading, 
-    setFilterDate, 
+  return {
+    data,
+    error,
+    loading,
+    setFilterDate,
     filterDate,
     refetch: () => {
       if (filterDate) {

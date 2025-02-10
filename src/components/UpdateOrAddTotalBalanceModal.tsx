@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -6,10 +6,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { useAlterTotalBalance } from "@/hooks/useUpdateTotalBalance";
 import { toast } from "@/hooks/use-toast";
+import { Input } from "@/components/ui/input";
 
 interface AlterTotalBalanceModalProps {
   isOpen: boolean;
@@ -17,39 +17,48 @@ interface AlterTotalBalanceModalProps {
 }
 
 interface TotalBalance {
-  savingsTotalBalance: number;
+  amount: string;
+  description: string;
+  date: string;
 }
 
 export default function AlterTotalBalanceModal({
   isOpen,
   onClose,
 }: AlterTotalBalanceModalProps) {
+
   const [newTotalBalance, setNewTotalBalance] = useState<TotalBalance>({
-    savingsTotalBalance: 0.1,
+    amount: "",
+    date: new Date().toISOString().split("T")[0],
+    description: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
   const { alterTotalBalance } = useAlterTotalBalance();
 
   const handleSubmit = async (e: React.FormEvent) => {
+    
     e.preventDefault();
-
+    
     if (isSubmitting) return;
 
     setIsSubmitting(true);
 
     try {
       await alterTotalBalance({
-        savingsTotalBalance: newTotalBalance.savingsTotalBalance,
+        amount: Number(newTotalBalance.amount),
+        date: new Date(newTotalBalance.date),
+        description: newTotalBalance.description,
       });
 
       toast({
         variant: "default",
-        title: "Porcentagem atualizada com sucesso",
+        title: "Caixa total atualizado com sucesso",
       });
 
       onClose();
 
-      setNewTotalBalance(newTotalBalance);
+    
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -62,33 +71,80 @@ export default function AlterTotalBalanceModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Atualizar Caixa</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label>
-              Porcentagem para Gastar: {newTotalBalance.savingsTotalBalance}%
-            </Label>
-            <Slider
-              min={0.1}
-              max={0.99}
-              step={0.01}
-              value={[newTotalBalance.savingsTotalBalance]}
-              onValueChange={(values) =>
-                setNewTotalBalance({ savingsTotalBalance: values[0] })
+    <DialogContent aria-describedby="dialog-description">
+      <DialogHeader>
+        <DialogTitle>Atualizar saldo Total do mês</DialogTitle>
+        <p id="dialog-description" className="text-sm ">
+        Insira o valor que tem guardado nesse mês, caso o saldo altere durante o mês, atualize por aqui também.
+        </p>
+      </DialogHeader>
+      <form onSubmit={handleSubmit} className="space-y-4  ">
+        <div className="gap-2 flex flex-col ">
+          <Label htmlFor="amount">Valor</Label>
+
+          <div className="relative">
+            <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+              R$
+            </span>
+            <Input
+              min={0.01}
+              id="amount"
+              type="number"
+              value={newTotalBalance.amount}
+              onChange={(e) =>
+                setNewTotalBalance({
+                  ...newTotalBalance,
+                  amount: e.target.value,
+                })
               }
+              onFocus={(e) => e.target.select()}
+              step={0.01}
+              required
+              className="pl-10"
             />
           </div>
-          <div className="flex justify-end space-x-2">
-            <Button variant="outline" onClick={onClose}>
-              Cancelar
-            </Button>
-            <Button onClick={handleSubmit}>Atualizar</Button>
-          </div>
         </div>
-      </DialogContent>
-    </Dialog>
+        <div className="gap-2 flex flex-col">
+          <Label htmlFor="amount">Descrição</Label>
+          <Input
+            id="description"
+            type="string"
+            value={newTotalBalance.description}
+            onChange={(e) =>
+              setNewTotalBalance({
+                ...newTotalBalance,
+                description: e.target.value,
+              })
+            }
+            required
+          />
+        </div>
+        <div className="gap-2 flex flex-col">
+          <Label htmlFor="amount">Data</Label>
+          <Input
+            id="date"
+            type="date"
+
+            onChange={(e) =>
+              setNewTotalBalance({ ...newTotalBalance, date: e.target.value })
+            }
+            required
+          />
+        </div>
+        <div className="flex justify-end space-x-2">
+          <Button
+            variant={"outline"}
+            onClick={onClose}
+            disabled={isSubmitting}
+          >
+            Cancelar
+          </Button>
+          <Button type="submit" variant={"default"} disabled={isSubmitting}>
+            {isSubmitting ? "Criando..." : "Criar Transação"}
+          </Button>
+        </div>
+      </form>
+    </DialogContent>
+  </Dialog>
   );
 }
