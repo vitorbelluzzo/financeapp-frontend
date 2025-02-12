@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 interface AlterTotalBalanceModalProps {
   isOpen: boolean;
   onClose: () => void;
+  currentBalance?: number;
 }
 
 interface TotalBalance {
@@ -25,10 +26,11 @@ interface TotalBalance {
 export default function AlterTotalBalanceModal({
   isOpen,
   onClose,
+  currentBalance,
 }: AlterTotalBalanceModalProps) {
 
   const [newTotalBalance, setNewTotalBalance] = useState<TotalBalance>({
-    amount: "",
+    amount: currentBalance ? currentBalance.toString() : "",
     date: new Date().toISOString().split("T")[0],
     description: "",
   });

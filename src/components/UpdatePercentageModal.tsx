@@ -9,6 +9,7 @@ import { toast } from '@/hooks/use-toast'
 interface AlterPercentageModalProps {
   isOpen: boolean
   onClose: () => void
+  currentpercentage?: number
 }
 
 interface Percentage {
@@ -18,9 +19,10 @@ interface Percentage {
 export default function AlterPercentageModal({
   isOpen,
   onClose,
+  currentpercentage,
 }: AlterPercentageModalProps) {
   const [newPercentage, setNewPercentage] = useState<Percentage>({
-    savingsPercentage: 0.1,
+    savingsPercentage: currentpercentage? currentpercentage : 0.1,
   })
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { alterPercentage } = useAlterPercentage();
@@ -64,7 +66,7 @@ export default function AlterPercentageModal({
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Porcentagem para Gastar: {newPercentage.savingsPercentage}%</Label>
+              <Label>Porcentagem para Gastar: {Math.round(newPercentage.savingsPercentage * 100)}%</Label>
               <Slider
                 min={0.1}
                 max={0.99}
