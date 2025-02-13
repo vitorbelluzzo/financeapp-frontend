@@ -1,47 +1,54 @@
 import { FinancialOverview } from "@/types";
 import { useState, useEffect, useCallback } from "react";
+import axios from "axios";
+
+const BASE_URL = "http://localhost:8080/transactions/overview";
 
 export const useFinancialData = () => {
   const [data, setData] = useState<FinancialOverview | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [filterDate, setFilterDate] = useState<string>(Date.now().toString());
-
-  const getFinancialData = useCallback( async (month?: string, year?: string) => {
-      const token = localStorage.getItem("authToken");
-      if (!token) {
-        throw new Error("Usuário não autenticado");
-      }
-      setLoading(true);
-      setError(null);
-
-      try {
-        var url = `http://localhost:8080/transactions/overview`;
-        if (month && year) {
-          url += `?month=${month}&year=${year}`;
-        }
-        const response = await fetch(url, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error(`Erro: ${response.status} - ${response.statusText}`);
-        }
-
-        const result = await response.json();
-        setData(result);
-      } catch (err) {
-        setError((err as Error).message);
-      } finally {
-        setLoading(false);
-      }
-    },
-    []
+  const [filterDate, setFilterDate] = useState<string>(
+    new Date().toISOString().split("T")[0] // Formato "YYYY-MM-DD"
   );
+
+  const getFinancialData = useCallback(async (month?: string, year?: string) => {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      throw new Error("Usuário não autenticado");
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+
+      let url = BASE_URL;
+      if (month && year) {
+        url += `?month=${month}&year=${year}`;
+      }
+
+      const response = await axios.get(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      // Verificar se a resposta é bem-sucedida
+      if (response.status !== 200) {
+        throw new Error(`Erro: ${response.status} - ${response.statusText}`);
+      }
+
+      // Atualizar o estado com os dados recebidos
+      setData(response.data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erro desconhecido");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
 
   useEffect(() => {
     if (filterDate) {
@@ -64,6 +71,6 @@ export const useFinancialData = () => {
         return getFinancialData(month, year);
       }
       return getFinancialData();
-    }
+    },
   };
 };

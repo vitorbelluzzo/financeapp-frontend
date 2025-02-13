@@ -1,31 +1,91 @@
-'use client'
+'use client';
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit } from "lucide-react";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { useDeleteTransaction } from "@/hooks/useDeleteTransaction";
+import DeleteTransactionButton from "@/components/DeleteTransactionButton";
+import { useFinancialData } from "@/hooks/useFinancialData";
 
-export function TransactionTable() {
+interface Transaction {
+  transactionId: number;
+  amount: number;
+  type: string;
+  description: string;
+  date: string;
+}
 
-  const mockData = {
-   
-    totalCash: 25000,
-    selectedMonth: {
-   
-      income: 1373.76,
-      expenses: 962.97,
-      toSpend: 1236.38,
-      toSave: 137.38,
-      canSpend: 273.4,
-    },
-    transactions: [
-      { id: 1, amount: 1000, type: "Entrada", description: "Salary", date: "2025-02-01" },
-      { id: 2, amount: -50, type: "Saída", description: "Groceries", date: "2025-02-05" },
-      { id: 3, amount: -100, type: "Saída", description: "Utilities", date: "2025-02-10" },
-    ],
-  }
+interface TransactionTableProps {
+  filterDate: string;
+  setFilterDate: (date: string) => void;
+}
+
+const BASE_URL = "http://localhost:8080/transactions";
+
+export function TransactionTable({ filterDate, setFilterDate }: TransactionTableProps) {
+
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const { refetch } = useFinancialData();
+  const [selectedTransaction, setSelectedTransaction] = useState<number | null>(null);
+  const [currentYear, currentMonth] = filterDate.split("-");
+
+
+
+  const handleDeleteSuccess = () => {
+    // Recarregar transações do mês atual
+    fetchTransactions(currentMonth, currentYear);
+    // Recarregar dados globais
+    refetch();
+  };
+
+  const fetchTransactions = async (month?: string, year?: string) => {
+    const token = localStorage.getItem("authToken");
+
+    if (!token) {
+      throw new Error("Usuário não autenticado");
+    }
+
+    try {
+      let url = BASE_URL;
+
+
+      if (month && year) {
+        url += `?month=${month}&year=${year}`;
+      }
+
+
+      const response = await axios.get(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.status !== 200) {
+        throw new Error(`Erro: ${response.status} - ${response.statusText}`);
+      }
+
+      setTransactions(response.data);
+    } catch (error) {
+
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (filterDate) {
+      const [year, month] = filterDate.split("-");
+      fetchTransactions(month, year);
+    } else {
+      fetchTransactions();
+    }
+  }, [filterDate]);
+
   return (
     <div className="bg-white p-4 rounded-lg shadow overflow-x-auto">
       <h2 className="text-xl font-semibold mb-2">Histórico de Transações</h2>
@@ -40,14 +100,15 @@ export function TransactionTable() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {mockData.transactions.map((transaction) => (
-            <TableRow key={transaction.id}>
-              <TableCell>{transaction.amount.toFixed(2)}</TableCell>
-              <TableCell className={`${transaction.type === 'Saída' ? 'text-red-500' : 'text-green-500'} font-bold`}>{transaction.type}</TableCell>
+          {transactions.map((transaction) => (
+            <TableRow key={transaction.transactionId} >
+              <TableCell  >{transaction.amount.toFixed(2)}</TableCell>
+              <TableCell className={`${transaction.type === 'EXPENSE' ? 'text-red-500' : 'text-green-500'} font-semibold`}>{`${transaction.type === 'EXPENSE' ? "Saída" : 'Entrada'} `}</TableCell>
               <TableCell className="">{transaction.description}</TableCell>
               <TableCell className="hidden md:table-cell">{transaction.date}</TableCell>
               <TableCell>
                 <div className="flex space-x-2">
+
                   <Dialog>
                     <DialogTrigger asChild>
                       <Button variant="outline" size="icon">
@@ -71,7 +132,7 @@ export function TransactionTable() {
                             Tipo
                           </Label>
                           <Input id="type" defaultValue={transaction.type} className={`col-span-3 `} />
-                        </div>  
+                        </div>
                         <div className="grid grid-cols-4 items-center gap-4">
                           <Label htmlFor="description" className="text-right">
                             Descrição
@@ -88,25 +149,15 @@ export function TransactionTable() {
                       <Button className="w-full">Salvar Alterações</Button>
                     </DialogContent>
                   </Dialog>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button variant="outline" size="icon">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px]">
-                      <DialogHeader>
-                        <DialogTitle>Confirmar Exclusão</DialogTitle>
-                        <DialogDescription>
-                          Tem certeza que deseja excluir esta transação? Esta ação não pode ser desfeita.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="flex justify-end space-x-2">
-                        <Button variant="outline">Cancelar</Button>
-                        <Button variant="destructive">Excluir</Button>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
+
+                  <DeleteTransactionButton
+                    transactionId={transaction.transactionId}
+                    isOpen={selectedTransaction === transaction.transactionId}
+                    onClose={() => setSelectedTransaction(null)}
+                    currentMonth={currentMonth}
+                    currentYear={currentYear}
+                    onDeleteSuccess={handleDeleteSuccess}
+                  />
                 </div>
               </TableCell>
             </TableRow>
@@ -115,5 +166,5 @@ export function TransactionTable() {
       </Table>
     </div>
   )
-
 }
+

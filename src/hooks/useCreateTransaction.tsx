@@ -32,18 +32,6 @@ export const useCreateTransaction = () => {
         body: JSON.stringify(transaction),
       });
 
-    
-      if (!response.ok) {
-        const contentType = response.headers.get("Content-Type");
-
-        if (contentType?.includes("application/json")) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || "Falha ao criar a transação");
-        }
-        throw new Error(
-          `'Falha ao criar a transação: ${response.status} ${response.statusText}`
-        );
-      }
       
       return;
     } catch (err) {
