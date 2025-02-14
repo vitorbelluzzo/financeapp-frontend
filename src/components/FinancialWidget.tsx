@@ -11,7 +11,7 @@ export function FinancialWidget({ title, value }: FinancialWidgetProps) {
     <div className="">
       <CardHeader className="flex flex-row  items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-base  text-muted-foreground font-semibold">{title}</CardTitle>
-        
+
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold capitalize  ">

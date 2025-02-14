@@ -130,7 +130,7 @@ export default function Overview() {
         </CardContent>
       </Card>
 
-      <TransactionTable filterDate={filterDate} setFilterDate={setFilterDate}    />
+      <TransactionTable filterDate={filterDate} refetch={() => refetch()} />
 
       <NewTransactionModal
         isOpen={isTransactionModalOpen}

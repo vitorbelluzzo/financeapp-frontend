@@ -1,16 +1,13 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Edit } from "lucide-react";
+import { Edit, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { useDeleteTransaction } from "@/hooks/useDeleteTransaction";
-import DeleteTransactionButton from "@/components/DeleteTransactionButton";
-import { useFinancialData } from "@/hooks/useFinancialData";
 
 interface Transaction {
   transactionId: number;
@@ -21,28 +18,16 @@ interface Transaction {
 }
 
 interface TransactionTableProps {
+  refetch: () => void;
   filterDate: string;
-  setFilterDate: (date: string) => void;
 }
 
 const BASE_URL = "http://localhost:8080/transactions";
 
-export function TransactionTable({ filterDate, setFilterDate }: TransactionTableProps) {
+export function TransactionTable({ refetch, filterDate }: TransactionTableProps) {
 
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const { refetch } = useFinancialData();
-  const [selectedTransaction, setSelectedTransaction] = useState<number | null>(null);
-  const [currentYear, currentMonth] = filterDate.split("-");
-
-
-
-  const handleDeleteSuccess = () => {
-    // Recarregar transações do mês atual
-    fetchTransactions(currentMonth, currentYear);
-    // Recarregar dados globais
-    refetch();
-  };
-
+  const [isDeleting, setDeleting] = useState(false);
   const fetchTransactions = async (month?: string, year?: string) => {
     const token = localStorage.getItem("authToken");
 
@@ -76,6 +61,33 @@ export function TransactionTable({ filterDate, setFilterDate }: TransactionTable
       console.log(error);
     }
   };
+  const handleDeleteTransaction = async (transactionId: number) => {
+    const token = localStorage.getItem("authToken");
+
+    if (!token) {
+      throw new Error("Usuário não autenticado");
+    }
+    try {
+      await axios.delete(`${BASE_URL}/${transactionId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      if (filterDate) {
+        const [year, month] = filterDate.split("-");
+        fetchTransactions(month, year);
+      } else {
+        fetchTransactions();
+      }
+
+      refetch();
+
+    } catch (err) {
+      console.error('Erro ao deletar transação:', err);
+    }
+  };
+
 
   useEffect(() => {
     if (filterDate) {
@@ -150,14 +162,30 @@ export function TransactionTable({ filterDate, setFilterDate }: TransactionTable
                     </DialogContent>
                   </Dialog>
 
-                  <DeleteTransactionButton
-                    transactionId={transaction.transactionId}
-                    isOpen={selectedTransaction === transaction.transactionId}
-                    onClose={() => setSelectedTransaction(null)}
-                    currentMonth={currentMonth}
-                    currentYear={currentYear}
-                    onDeleteSuccess={handleDeleteSuccess}
-                  />
+                  <Dialog >
+                    <DialogTrigger asChild>
+                      <Button variant="outline" size="icon">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[425px]">
+                      <DialogHeader>
+
+                        <DialogTitle>Confirmar Exclusão</DialogTitle>
+                        <DialogDescription>
+                          Tem certeza que deseja excluir esta transação? Esta ação não pode ser desfeita.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="flex justify-end space-x-2">
+                        <DialogClose>
+                          Cancelar
+                        </DialogClose>
+                        <Button onClick={() => handleDeleteTransaction(transaction.transactionId)} variant={"destructive"}>
+                          Excluir
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                 </div>
               </TableCell>
             </TableRow>
