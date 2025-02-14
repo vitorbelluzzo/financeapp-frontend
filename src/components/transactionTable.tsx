@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Edit, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Transaction {
   transactionId: number;
@@ -25,9 +26,9 @@ interface TransactionTableProps {
 const BASE_URL = "http://localhost:8080/transactions";
 
 export function TransactionTable({ refetch, filterDate }: TransactionTableProps) {
-
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [isDeleting, setDeleting] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState<Partial<Transaction> | null>(null);
+
   const fetchTransactions = async (month?: string, year?: string) => {
     const token = localStorage.getItem("authToken");
 
@@ -88,6 +89,29 @@ export function TransactionTable({ refetch, filterDate }: TransactionTableProps)
     }
   };
 
+  const handleUpdateTransaction = async () => {
+    if (!selectedTransaction || !selectedTransaction.transactionId) return;
+
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      throw new Error("Usuário não autenticado");
+    }
+
+    try {
+      await axios.put(`${BASE_URL}/${selectedTransaction.transactionId}`, selectedTransaction, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      fetchTransactions();
+      refetch();
+      setSelectedTransaction(null);
+    } catch (err) {
+      console.error("Erro ao atualizar transação:", err);
+    }
+  };
+
 
   useEffect(() => {
     if (filterDate) {
@@ -101,97 +125,140 @@ export function TransactionTable({ refetch, filterDate }: TransactionTableProps)
   return (
     <div className="bg-white p-4 rounded-lg shadow overflow-x-auto">
       <h2 className="text-xl font-semibold mb-2">Histórico de Transações</h2>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[100px]">Valor</TableHead>
-            <TableHead>Tipo</TableHead>
-            <TableHead className="">Descrição</TableHead>
-            <TableHead className="hidden md:table-cell">Data</TableHead>
-            <TableHead>Ações</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {transactions.map((transaction) => (
-            <TableRow key={transaction.transactionId} >
-              <TableCell  >{transaction.amount.toFixed(2)}</TableCell>
-              <TableCell className={`${transaction.type === 'EXPENSE' ? 'text-red-500' : 'text-green-500'} font-semibold`}>{`${transaction.type === 'EXPENSE' ? "Saída" : 'Entrada'} `}</TableCell>
-              <TableCell className="">{transaction.description}</TableCell>
-              <TableCell className="hidden md:table-cell">{transaction.date}</TableCell>
-              <TableCell>
-                <div className="flex space-x-2">
-
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button variant="outline" size="icon">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px]">
-                      <DialogHeader>
-                        <DialogTitle>Editar Transação</DialogTitle>
-                        <DialogDescription>Faça as alterações necessárias na transação.</DialogDescription>
-                      </DialogHeader>
-                      <div className="grid gap-4 py-4">
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="amount" className="text-right">
-                            Valor
-                          </Label>
-                          <Input id="amount" defaultValue={transaction.amount} className="col-span-3" />
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="type" className="text-right">
-                            Tipo
-                          </Label>
-                          <Input id="type" defaultValue={transaction.type} className={`col-span-3 `} />
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="description" className="text-right">
-                            Descrição
-                          </Label>
-                          <Input id="description" defaultValue={transaction.description} className="col-span-3" />
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="date" className="text-right">
-                            Data
-                          </Label>
-                          <Input id="date" type="date" defaultValue={transaction.date} className="col-span-3" />
-                        </div>
-                      </div>
-                      <Button className="w-full">Salvar Alterações</Button>
-                    </DialogContent>
-                  </Dialog>
-
-                  <Dialog >
-                    <DialogTrigger asChild>
-                      <Button variant="outline" size="icon">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px]">
-                      <DialogHeader>
-
-                        <DialogTitle>Confirmar Exclusão</DialogTitle>
-                        <DialogDescription>
-                          Tem certeza que deseja excluir esta transação? Esta ação não pode ser desfeita.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="flex justify-end space-x-2">
-                        <DialogClose>
-                          Cancelar
-                        </DialogClose>
-                        <Button onClick={() => handleDeleteTransaction(transaction.transactionId)} variant={"destructive"}>
-                          Excluir
-                        </Button>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                </div>
-              </TableCell>
+      {transactions.length === 0 ? (
+        <p className="text-gray-500">Não houve transações neste mês.</p>
+      ) : (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[100px]">Valor</TableHead>
+              <TableHead>Tipo</TableHead>
+              <TableHead className="">Descrição</TableHead>
+              <TableHead className="hidden md:table-cell">Data</TableHead>
+              <TableHead>Ações</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {transactions.map((transaction) => (
+              <TableRow key={transaction.transactionId} >
+                <TableCell  >{transaction.amount.toFixed(2)}</TableCell>
+                <TableCell className={`${transaction.type === 'EXPENSE' ? 'text-red-500' : 'text-green-500'} font-semibold`}>{`${transaction.type === 'EXPENSE' ? "Saída" : 'Entrada'} `}</TableCell>
+                <TableCell className="">{transaction.description}</TableCell>
+                <TableCell className="hidden md:table-cell">{transaction.date}</TableCell>
+                <TableCell>
+                  <div className="flex space-x-2">
+
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => setSelectedTransaction(transaction)} // Armazena os dados antes de abrir o modal
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                          <DialogTitle>Editar Transação</DialogTitle>
+                          <DialogDescription>Faça as alterações necessárias na transação.</DialogDescription>
+                        </DialogHeader>
+                        {selectedTransaction && (
+                          <div className="grid gap-4 py-4">
+                            <div className="gap-2 flex flex-col">
+                              <Label htmlFor="amount">Valor</Label>
+                              <div className="relative">
+                                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                                  R$
+                                </span>
+                                <Input
+                                  id="amount"
+                                  type="number"
+                                  value={selectedTransaction.amount}
+                                  onChange={(e) => setSelectedTransaction({ ...selectedTransaction, amount: Number(e.target.value) })}
+                                  className="pl-10"
+                                />
+                              </div>
+                            </div>
+                            <div className="gap-2 flex flex-col">
+                              <Label htmlFor="type">Tipo</Label>
+                              <Select
+                                required
+                                onValueChange={(value: "INCOME" | "EXPENSE") =>
+                                  setSelectedTransaction({ ...selectedTransaction, type: value })
+                                }
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Selecione o tipo de transação" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="INCOME">Entrada</SelectItem>
+                                  <SelectItem value="EXPENSE">Saída</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="gap-2 flex flex-col">
+                              <Label htmlFor="description" >
+                                Descrição
+                              </Label>
+                              <Input
+                                id="description"
+                                value={selectedTransaction.description}
+                                onChange={(e) => setSelectedTransaction({ ...selectedTransaction, description: e.target.value })}
+                                className="col-span-3"
+                              />
+                            </div>
+                            <div className="gap-2 flex flex-col">
+                              <Label htmlFor="date">
+                                Data
+                              </Label>
+                              <Input
+                                id="date"
+                                type="date"
+                                value={selectedTransaction.date}
+                                onChange={(e) => setSelectedTransaction({ ...selectedTransaction, date: e.target.value })}
+                                className="col-span-3"
+                              />
+                            </div>
+                          </div>
+                        )}
+                        <Button className="w-full" onClick={handleUpdateTransaction}>
+                          Salvar Alterações
+                        </Button>
+                      </DialogContent>
+                    </Dialog>
+
+                    <Dialog >
+                      <DialogTrigger asChild>
+                        <Button variant="outline" size="icon">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+
+                          <DialogTitle>Confirmar Exclusão</DialogTitle>
+                          <DialogDescription>
+                            Tem certeza que deseja excluir esta transação? Esta ação não pode ser desfeita.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="flex justify-end space-x-2">
+                          <DialogClose>
+                            Cancelar
+                          </DialogClose>
+                          <Button onClick={() => handleDeleteTransaction(transaction.transactionId)} variant={"destructive"}>
+                            Excluir
+                          </Button>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
     </div>
   )
 }

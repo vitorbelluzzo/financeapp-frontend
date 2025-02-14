@@ -84,7 +84,6 @@ export default function NewTransactionModal({
         <form onSubmit={handleSubmit} className="space-y-4  ">
           <div className="gap-2 flex flex-col ">
             <Label htmlFor="amount">Valor</Label>
-
             <div className="relative">
               <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
                 R$
