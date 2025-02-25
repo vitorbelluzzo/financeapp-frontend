@@ -17,10 +17,10 @@ export default function RootLayout({
 }>) {
   return (
     <html  >
-     <head />
-      <body>
+      <head />
+      <body className="">
         <Toaster />
-          {children}
+        {children}
       </body>
     </html>
   );

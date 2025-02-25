@@ -45,7 +45,7 @@ export default function LoginScreen() {
 
       localStorage.setItem("authToken", data.accessToken);
 
-      
+
 
       console.log("Login bem-sucedido. Redirecionando para o dashboard...");
       window.location.href = "/overview";
@@ -63,7 +63,7 @@ export default function LoginScreen() {
 
   return (
     <>
-    
+
       <div className="w-full max-w-sm  mx-auto my-auto justify-center py-12 ">
         <div className="mx-auto ">
           <Image src={logo} className="size-14 mx-auto" alt="" />

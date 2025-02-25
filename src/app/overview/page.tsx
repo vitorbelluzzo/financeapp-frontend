@@ -12,6 +12,7 @@ import NewTransactionModal from "@/components/NewTransactionModal";
 import UpdatePercentageModal from "@/components/UpdatePercentageModal";
 import AlterTotalBalanceModal from "@/components/UpdateOrAddTotalBalanceModal";
 import { TransactionTable } from "@/components/transactionTable";
+import axios from "axios";
 
 export default function Overview() {
 
@@ -27,6 +28,29 @@ export default function Overview() {
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
   const [isPercentageModalOpen, setIsPercentageModalOpen] = useState(false);
   const [isTotalBalanceModalOpen, setIsTotalBalanceModalOpen] = useState(false);
+
+  const handleLogout = async () => {
+    const token = localStorage.getItem("authToken"); // Pegando o token do localStorage
+    try {
+      await axios.post(
+        "http://localhost:8080/logout",
+        {}, // Body vazio
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Adicionando o token no cabeçalho
+            "Content-Type": "application/json",
+          },
+          withCredentials: true, // Garantindo que cookies HTTP-Only sejam enviados (caso o backend use)
+        }
+      );
+
+      localStorage.removeItem("authToken"); // Só remover o token depois de uma resposta bem-sucedida
+      window.location.href = "/"; // Redireciona para a tela de login
+    } catch (error) {
+      console.error("Erro ao fazer logout", error);
+    }
+  };
+
 
   if (dataError) {
     return (
@@ -55,8 +79,13 @@ export default function Overview() {
   }
 
   return (
-    <div className="space-y-4 p-4 md:space-y-6 md:p-6 rounded-lg max-w-5xl mx-auto  ">
-      <h1 className="text-2xl font-bold mb-4">Olá, {data.name}</h1>
+    <div className="space-y-4 p-4 md:space-y-6 md:p-6 rounded-lg max-w-5xl mx-auto   ">
+      <div className="border flex justify-between">
+        <h1 className="text-2xl font-bold mb-4">Olá, {data.name}</h1>
+        <Button onClick={handleLogout} variant={"destructive"} className=" text-white">
+          Sair
+        </Button>
+      </div>
       <div className="flex flex-col sm:gap-3 sm:flex-row justify-between items-start sm:items-center mb-4 space-y-2 sm:space-y-0">
         <Input
           type="month"

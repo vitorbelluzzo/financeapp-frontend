@@ -22,7 +22,7 @@ export default function AlterPercentageModal({
   currentpercentage,
 }: AlterPercentageModalProps) {
   const [newPercentage, setNewPercentage] = useState<Percentage>({
-    savingsPercentage: currentpercentage? currentpercentage : 0.1,
+    savingsPercentage: currentpercentage !== undefined ? currentpercentage /100 : 0.1,
   })
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { alterPercentage } = useAlterPercentage();
@@ -62,7 +62,7 @@ export default function AlterPercentageModal({
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Atualizar Porcentagem para Gastar</DialogTitle>
+            <DialogTitle>Atualizar Porcentagem para Guardar</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
